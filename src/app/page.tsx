@@ -1,65 +1,137 @@
+"use client";
+
+import {
+  motion,
+} from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
+import detailsHeroImage from "../../details_hero.png";
+import { ScenarioScrollSection } from "@/components/ScenarioScrollSection";
+
+const assets = {
+  hero: detailsHeroImage,
+  logoDark:
+    "https://www.figma.com/api/mcp/asset/c09e776a-e946-486b-9d81-f10ca738c3e0",
+  logoLight: "/logo.svg",
+  logoFooter: "/footer logo.svg",
+  arrow: "/arrow.png",
+  globe: "/globe.svg",
+  location: "/icon_location_s.svg",
+  communicate: "/icon_communicate_s.svg",
+  x: "/X.png",
+  linkedIn: "/link.png",
+  instagram: "/ins.png",
+  youtube: "/YouTube.png",
+};
+
+type MetricSpec = {
+  target: number;
+  decimals: number;
+  suffix: string;
+  label: string;
+};
+
+const metricSpecs: MetricSpec[] = [
+  { target: 330, decimals: 0, suffix: " km", label: "Maximum Range" },
+  { target: 1000, decimals: 0, suffix: " kg", label: "Payload Capacity" },
+  { target: 5.8, decimals: 1, suffix: " m³", label: "Cargo Volume" },
+  { target: 28.3, decimals: 1, suffix: " kWh", label: "Capitalize P" },
+];
+
+const navLinks = ["Products", "Scenarios", "Resources", "About us"];
 
 export default function Home() {
+  const [secondScreenInView, setSecondScreenInView] = useState(false);
+
+  const handleSecondScreenEnter = () => {
+    setSecondScreenInView(true);
+  };
+
+  const handleSecondScreenLeave = () => {
+    setSecondScreenInView(false);
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <main className="w-full bg-white">
+      <div className="w-full bg-white">
+        <section className="relative isolate h-[540px] overflow-hidden md:h-[820px]">
+          <Image
+            src={assets.hero}
+            alt="Hero background"
+            fill
+            priority
+            className="object-cover"
+            sizes="100vw"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-black/20" />
+
+          <header className="absolute inset-x-0 top-0 z-20 h-[72px] backdrop-blur-[12px]">
+            <div className="mx-auto flex h-full max-w-[1240px] items-center justify-between px-0">
+              <Image
+                src={assets.logoLight}
+                alt="zelostech"
+                width={306}
+                height={48}
+                className="h-12 w-auto"
+              />
+
+              <div className="hidden items-center gap-8 text-[16px] text-[#f5f6f7] lg:flex">
+                <nav className="flex items-center gap-12">
+                  {navLinks.map((item) => (
+                    <Link
+                      key={item}
+                      href={item === "Resources" ? "/resources" : "#"}
+                      className="transition-opacity hover:opacity-80"
+                    >
+                      {item}
+                    </Link>
+                  ))}
+                </nav>
+                <button className="flex h-[34px] items-center gap-2 rounded-[3px] bg-white px-4 text-[16px] font-bold text-[#222943]">
+                  Get in touch
+                  <Image src={assets.arrow} alt="" width={16} height={16} />
+                </button>
+              </div>
+
+            </div>
+          </header>
+
+          <motion.div
+            className="absolute bottom-[45px] left-0 right-0 z-20 px-6"
+            viewport={{ amount: 0.25 }}
+            onViewportEnter={handleSecondScreenEnter}
+            onViewportLeave={handleSecondScreenLeave}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+            <div className="mx-auto flex max-w-[980px] flex-wrap items-center justify-center gap-x-10 gap-y-10 md:gap-x-24">
+              {metricSpecs.map((item, index) => (
+                <motion.div
+                  key={item.label}
+                  className="min-w-[126px]"
+                  initial={{ opacity: 0, y: 24 }}
+                  animate={
+                    secondScreenInView
+                      ? { opacity: 1, y: 0 }
+                      : { opacity: 0, y: 24 }
+                  }
+                  transition={{
+                    duration: 0.65,
+                    delay: index * 0.1,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                >
+                  <p className="text-[32px] font-semibold leading-[1.1] text-white">
+                    {item.target.toFixed(item.decimals)}
+                    {item.suffix}
+                  </p>
+                  <p className="mt-2 text-[14px] text-white/70">{item.label}</p>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        </section>
+        <ScenarioScrollSection />
+      </div>
+    </main>
   );
 }
