@@ -1,88 +1,153 @@
 "use client";
 
-import { motion, useScroll, useSpring, useTransform } from "framer-motion";
+import { motion, MotionValue, useScroll, useTransform } from "framer-motion";
 
 const introLines = [
   {
     text: "The World’s",
     className: "block",
-    baseOpacity: 1,
-    start: 0,
-    end: 60,
   },
   {
     text: "Leading",
     className: "block",
-    baseOpacity: 0.35,
-    start: 40,
-    end: 160,
   },
   {
     text: "RoboVan Platform",
     className: "block",
-    baseOpacity: 0.18,
-    start: 120,
-    end: 260,
   },
 ];
 
 const supportingLines = [
   {
     text: "Making Logistics Simpler.",
-    baseOpacity: 0.12,
-    start: 240,
-    end: 400,
   },
   {
     text: "Built for Real-World Autonomous Logistics.",
-    baseOpacity: 0.08,
-    start: 340,
-    end: 520,
   },
 ];
 
-type ScrollTextLineProps = {
+const introCharacterCount = introLines.reduce(
+  (count, line) => count + Array.from(line.text).length,
+  0,
+);
+
+const supportingCharacterCount = supportingLines.reduce(
+  (count, line) => count + Array.from(line.text).length,
+  0,
+);
+
+const introLinesWithOffsets = introLines.map((line, index) => ({
+  ...line,
+  offset: introLines
+    .slice(0, index)
+    .reduce((count, item) => count + Array.from(item.text).length, 0),
+}));
+
+const supportingLinesWithOffsets = supportingLines.map((line, index) => ({
+  ...line,
+  offset: supportingLines
+    .slice(0, index)
+    .reduce((count, item) => count + Array.from(item.text).length, 0),
+}));
+
+type RevealCharacterProps = {
+  char: string;
+  index: number;
+  total: number;
+  progress: MotionValue<number>;
+  from: number;
+  to: number;
+};
+
+type RevealTextLineProps = {
   text: string;
-  baseOpacity: number;
-  start: number;
-  end: number;
+  progress: MotionValue<number>;
+  offset: number;
+  total: number;
+  from: number;
+  to: number;
   className?: string;
 };
 
-function ScrollTextLine({
+function RevealCharacter({
+  char,
+  index,
+  total,
+  progress,
+  from,
+  to,
+}: RevealCharacterProps) {
+  const step = (to - from) / Math.max(total, 1);
+  const start = from + step * index;
+  const end = start + step * 2;
+  const color = useTransform(
+    progress,
+    [start, end],
+    ["#c0c2c9", "#222943"],
+  );
+
+  return <motion.span style={{ color }}>{char}</motion.span>;
+}
+
+function RevealTextLine({
   text,
-  baseOpacity,
-  start,
-  end,
+  progress,
+  offset,
+  total,
+  from,
+  to,
   className,
-}: ScrollTextLineProps) {
-  const { scrollY } = useScroll();
-  const opacity = useSpring(useTransform(scrollY, [start, end], [baseOpacity, 1]), {
-    stiffness: 120,
-    damping: 28,
-    mass: 0.4,
-  });
+}: RevealTextLineProps) {
+  const characters = Array.from(text);
 
   return (
-    <motion.span className={className} style={{ opacity }}>
-      {text}
-    </motion.span>
+    <span className={className}>
+      <span className="sr-only">{text}</span>
+      <span aria-hidden="true">
+        {characters.map((char, index) => (
+          <RevealCharacter
+            key={`${char}-${index}`}
+            char={char}
+            index={offset + index}
+            total={total}
+            progress={progress}
+            from={from}
+            to={to}
+          />
+        ))}
+      </span>
+    </span>
   );
 }
 
 export function AboutHeroIntro() {
+  const { scrollY } = useScroll();
+
   return (
     <>
       <h1 className="mx-auto max-w-[780px] text-[40px] font-semibold leading-[1.18] text-[#222943] md:text-[50px]">
-        {introLines.map((line) => (
-          <ScrollTextLine key={line.text} {...line} />
+        {introLinesWithOffsets.map((line) => (
+          <RevealTextLine
+            key={line.text}
+            {...line}
+            progress={scrollY}
+            total={introCharacterCount}
+            from={0}
+            to={280}
+          />
         ))}
       </h1>
 
       <div className="mx-auto mt-[70px] max-w-[900px] text-[28px] font-semibold leading-[1.35] text-[#222943] md:text-[50px]">
-        {supportingLines.map((line) => (
+        {supportingLinesWithOffsets.map((line) => (
           <p key={line.text}>
-            <ScrollTextLine {...line} />
+            <RevealTextLine
+              {...line}
+              progress={scrollY}
+              total={supportingCharacterCount}
+              from={220}
+              to={560}
+            />
           </p>
         ))}
       </div>
