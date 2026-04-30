@@ -2,6 +2,8 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import modalCarImage from "../../modalcar.png";
 import cancelImage from "../../cancel.png";
@@ -21,10 +23,16 @@ const assets = {
   youtube: "/YouTube.png",
 };
 
-const footerNav = ["Product", "Scenarios", "Resources", "About us"];
+const footerNav = [
+  { label: "Product", href: "/" },
+  { label: "Scenarios", href: "#" },
+  { label: "Resources", href: "/resources" },
+  { label: "About us", href: "/about" },
+];
 const policyLinks = ["Cookie Policy", "Terms of Use", "Privacy Policy"];
 
 export function GlobalBottomSection() {
+  const pathname = usePathname();
   const [futureTruckEntered, setFutureTruckEntered] = useState(false);
   const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
   const [isCloseHovered, setIsCloseHovered] = useState(false);
@@ -127,6 +135,7 @@ export function GlobalBottomSection() {
               alt="truck visual"
               width={290}
               height={180}
+              unoptimized
               className="h-[180px] w-[290px]"
             />
           </motion.div>
@@ -312,15 +321,15 @@ export function GlobalBottomSection() {
             <ul className="space-y-4 text-[24px] font-semibold leading-8">
               {footerNav.map((item) => (
                 <li
-                  key={item}
-                  className={item === "Scenarios" ? "text-[#25cacc]" : "text-[#222943]"}
+                  key={item.label}
+                  className={pathname === item.href ? "text-[#25cacc]" : "text-[#222943]"}
                 >
-                  <a href="#" className="inline-flex items-center gap-2">
-                    {item}
-                    {item === "Scenarios" && (
+                  <Link href={item.href} className="inline-flex items-center gap-2">
+                    {item.label}
+                    {pathname === item.href && (
                       <span className="text-base leading-none">›</span>
                     )}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>

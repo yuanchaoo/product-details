@@ -72,7 +72,15 @@ export default function ResourcesPage() {
                 {navLinks.map((item) => (
                   <Link
                     key={item}
-                    href={item === "Resources" ? "/resources" : item === "Products" ? "/" : "#"}
+                    href={
+                      item === "Resources"
+                        ? "/resources"
+                        : item === "About us"
+                          ? "/about"
+                          : item === "Products"
+                            ? "/"
+                            : "#"
+                    }
                     className={item === "Resources" ? "text-[#25cacc]" : "transition-opacity hover:opacity-70"}
                   >
                     {item}
