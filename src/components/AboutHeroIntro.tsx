@@ -84,7 +84,7 @@ function RevealCharacter({
   const color = useTransform(
     progress,
     [start, end],
-    ["rgba(0, 89, 255, 0.2)", "#222943"],
+    ["rgba(37, 202, 204, 0.25)", "#000000"],
   );
 
   return <motion.span style={{ color }}>{char}</motion.span>;

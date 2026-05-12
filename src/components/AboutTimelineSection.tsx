@@ -18,10 +18,9 @@ type AboutTimelineSectionProps = {
 };
 
 const DESKTOP_COLUMN_GAP = 58;
-const DESKTOP_TOP_ALIGNMENT_OFFSET = 30;
+const DESKTOP_TOP_ALIGNMENT_OFFSET = 60;
 const DESKTOP_TITLE_ALIGNMENT_OFFSET = 380;
 const DESKTOP_MODULE_HEIGHT = 500;
-const STICKY_HEADER_HEIGHT = 68;
 const AXIS_START_YEAR = 2021;
 const AXIS_TOTAL_MONTHS = 60;
 
@@ -68,7 +67,7 @@ export function AboutTimelineSection({ milestones }: AboutTimelineSectionProps) 
     }
 
     const sectionTop = section.getBoundingClientRect().top + window.scrollY;
-    const availableFrameHeight = window.innerHeight - STICKY_HEADER_HEIGHT;
+    const availableFrameHeight = window.innerHeight;
     const maxScroll = Math.max(
       0,
       timelineContentHeight + 160 - availableFrameHeight,
@@ -116,7 +115,7 @@ export function AboutTimelineSection({ milestones }: AboutTimelineSectionProps) 
   } as CSSProperties;
 
   const timelineSectionStyle = {
-    height: `calc(${timelineContentHeight}px + ${STICKY_HEADER_HEIGHT + 160}px)`,
+    height: `calc(${timelineContentHeight}px + 160px)`,
   } as CSSProperties;
 
   useEffect(() => {
@@ -130,7 +129,7 @@ export function AboutTimelineSection({ milestones }: AboutTimelineSectionProps) 
       }
 
       const sectionTop = section.getBoundingClientRect().top + window.scrollY;
-      const availableFrameHeight = window.innerHeight - STICKY_HEADER_HEIGHT;
+      const availableFrameHeight = window.innerHeight;
       const maxScroll = Math.max(
         0,
         timelineContentHeight + 160 - availableFrameHeight,
@@ -185,18 +184,8 @@ export function AboutTimelineSection({ milestones }: AboutTimelineSectionProps) 
         className="sticky top-0 z-10 h-screen overflow-hidden px-6"
       >
         <div className="mx-auto h-full max-w-[1240px]">
-          <div className="h-px w-full bg-[#e6e7ea]" />
-          <div className="flex h-[66px] items-center gap-[10px]">
-            <span className="h-2 w-2 shrink-0 rounded-full bg-[#25cacc]" />
-            <p className="text-[24px] font-normal leading-[40px] text-[#222943]">
-              <span className="opacity-80">History of</span>{" "}
-              <span style={{ fontWeight: 900 }}>Zelostech</span>
-            </p>
-          </div>
-          <div className="h-px w-full bg-[#e6e7ea]" />
-
-          <div className="grid h-[calc(100%_-_68px)] gap-x-[70px] gap-y-[70px] md:grid-cols-[120px_minmax(0,1fr)] lg:gap-x-[100px]">
-            <aside className="hidden pt-[30px] md:block">
+          <div className="grid h-full gap-x-[70px] gap-y-[70px] md:grid-cols-[120px_minmax(0,1fr)] lg:gap-x-[100px]">
+            <aside className="hidden pt-[60px] md:block">
               <div>
                 <p
                   ref={activeYearRef}
