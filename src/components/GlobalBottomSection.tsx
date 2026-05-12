@@ -12,8 +12,6 @@ import checkboxImage from "../../checkbox.png";
 import checkboxCheckedImage from "../../1checkbox.png";
 
 const assets = {
-  logoDark:
-    "https://www.figma.com/api/mcp/asset/c09e776a-e946-486b-9d81-f10ca738c3e0",
   logoFooter: "/footer logo.svg",
   location: "/icon_location_s.svg",
   communicate: "/icon_communicate_s.svg",
@@ -33,7 +31,6 @@ const policyLinks = ["Cookie Policy", "Terms of Use", "Privacy Policy"];
 
 export function GlobalBottomSection() {
   const pathname = usePathname();
-  const [futureTruckEntered, setFutureTruckEntered] = useState(false);
   const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
   const [isCloseHovered, setIsCloseHovered] = useState(false);
   const [typedCharCount, setTypedCharCount] = useState(0);
@@ -73,10 +70,6 @@ export function GlobalBottomSection() {
       ? ""
       : titleLine2.slice(0, typedCharCount - titleLine1.length);
 
-  const handleFutureSectionEnter = () => {
-    setFutureTruckEntered(true);
-  };
-
   const handleOpenSignupModal = () => {
     setTypedCharCount(0);
     setIsSignupModalOpen(true);
@@ -95,8 +88,6 @@ export function GlobalBottomSection() {
     <>
       <motion.section
         className="relative overflow-visible bg-[#222943] px-6 py-14 text-white md:py-16"
-        viewport={{ amount: 0.25, once: true }}
-        onViewportEnter={handleFutureSectionEnter}
       >
         <div className="mx-auto flex max-w-[1240px] flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-[860px]">
@@ -120,25 +111,6 @@ export function GlobalBottomSection() {
             </div>
           </div>
 
-          <motion.div
-            initial={{ x: 560, opacity: 0 }}
-            animate={
-              futureTruckEntered
-                ? { x: 0, opacity: 1 }
-                : { x: 560, opacity: 0 }
-            }
-            transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
-            className="relative z-50 mx-auto shrink-0 lg:mx-0 lg:mr-20 lg:translate-y-[200px]"
-          >
-            <Image
-              src={assets.logoDark}
-              alt="truck visual"
-              width={290}
-              height={180}
-              unoptimized
-              className="h-[180px] w-[290px]"
-            />
-          </motion.div>
         </div>
       </motion.section>
 

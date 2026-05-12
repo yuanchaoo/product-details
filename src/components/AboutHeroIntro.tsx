@@ -4,25 +4,26 @@ import { motion, MotionValue, useScroll, useTransform } from "framer-motion";
 
 const introLines = [
   {
-    text: "The World’s",
+    text: "The World's Largest",
     className: "block",
   },
   {
-    text: "Leading",
+    text: "RoboVan Enterprise",
     className: "block",
   },
   {
-    text: "RoboVan Platform",
-    className: "block",
+    text: "A Global Leader",
+    className: "block mt-[70px]",
+  },
+  {
+    text: "in Autonomous Driving Technology",
+    className: "block whitespace-nowrap",
   },
 ];
 
 const supportingLines = [
   {
-    text: "Making Logistics Simpler.",
-  },
-  {
-    text: "Built for Real-World Autonomous Logistics.",
+    text: "Built for Real-World Logistics",
   },
 ];
 
@@ -83,7 +84,7 @@ function RevealCharacter({
   const color = useTransform(
     progress,
     [start, end],
-    ["#c0c2c9", "#222943"],
+    ["rgba(0, 89, 255, 0.2)", "#222943"],
   );
 
   return <motion.span style={{ color }}>{char}</motion.span>;
@@ -125,7 +126,7 @@ export function AboutHeroIntro() {
 
   return (
     <>
-      <h1 className="mx-auto max-w-[780px] text-[40px] font-semibold leading-[1.18] text-[#222943] md:text-[50px]">
+      <h1 className="mx-auto max-w-[1120px] text-[40px] font-semibold leading-[1.18] text-[#222943] md:text-[50px]">
         {introLinesWithOffsets.map((line) => (
           <RevealTextLine
             key={line.text}

@@ -6,8 +6,6 @@ import calculatorImage from "../../计算器.png";
 import { ScenarioScrollSection } from "@/components/ScenarioScrollSection";
 
 const assets = {
-  logoDark:
-    "https://www.figma.com/api/mcp/asset/c09e776a-e946-486b-9d81-f10ca738c3e0",
   logoLight: "/logo.svg",
   logoFooter: "/footer logo.svg",
   arrow: "/arrow.png",

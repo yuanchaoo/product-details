@@ -1,15 +1,21 @@
 import Image from "next/image";
 import Link from "next/link";
+import expressDeliveryImage from "../../../Express Delivery.png";
+import hypermarketsImage from "../../../Hypermarkets.png";
+import postalServicesImage from "../../../Postal Services.png";
+import heroImage from "../../../public/hero.png";
+import resourceCarImage from "../../../public/resourcecar.png";
+import sceneImage from "../../../1.png";
 
 const assets = {
   logoDark: "/footer logo.svg",
   click: "/click.png",
-  card1: "https://www.figma.com/api/mcp/asset/01c8cf03-caa4-47d8-9062-2a061c783424",
-  card2: "https://www.figma.com/api/mcp/asset/62eb8d7b-90d2-4a32-8d28-a31178243be1",
-  card3: "https://www.figma.com/api/mcp/asset/a33361d5-3092-4491-b261-c1d69f1a6a28",
-  card4: "https://www.figma.com/api/mcp/asset/b6ff2eb9-aa02-4b09-b108-0e9fd6be5c37",
-  card5: "https://www.figma.com/api/mcp/asset/e073bda0-d7f0-43f7-8e88-ba0155635abc",
-  card6: "https://www.figma.com/api/mcp/asset/25f21339-dcd2-46a8-ae84-a99e0c59c4c1",
+  card1: heroImage,
+  card2: resourceCarImage,
+  card3: expressDeliveryImage,
+  card4: hypermarketsImage,
+  card5: postalServicesImage,
+  card6: sceneImage,
 };
 
 const navLinks = ["Products", "Scenarios", "Resources", "About us"];

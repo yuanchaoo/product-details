@@ -36,7 +36,7 @@ function RevealCharacter({
   const color = useTransform(
     progress,
     [start, end],
-    ["#c0c2c9", "#222943"],
+    ["rgba(0, 89, 255, 0.2)", "#222943"],
   );
 
   return (
@@ -78,13 +78,16 @@ export function AboutCopySection() {
   });
 
   return (
-    <section ref={sectionRef} className="bg-white px-6 pt-[102px] md:px-[100px]">
-      <div className="w-full">
+    <section
+      ref={sectionRef}
+      className="flex items-start bg-white px-6 md:px-[100px]"
+    >
+      <div className="mx-auto w-full max-w-[1764px]">
         <h2 className="text-center text-[48px] font-semibold leading-[1.15] text-[#222943] md:text-[70px] md:leading-[80px]">
           About us
         </h2>
 
-        <div className="mt-[80px] space-y-[34px] text-left text-[18px] font-medium leading-8 md:text-[24px] md:leading-[40px]">
+        <div className="mt-[50px] space-y-[34px] text-left text-[18px] font-medium leading-8 md:text-[24px] md:leading-[40px]">
           <p>
             <RevealText
               text={primaryText}

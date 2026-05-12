@@ -1,11 +1,14 @@
 "use client";
 
 import Image from "next/image";
+import type { StaticImageData } from "next/image";
 import { useEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 
 type Milestone = {
   year: string;
-  image: string;
+  axisMonth: number;
+  image: StaticImageData;
   title: string;
   description: string;
 };
@@ -14,27 +17,138 @@ type AboutTimelineSectionProps = {
   milestones: Milestone[];
 };
 
+const DESKTOP_COLUMN_GAP = 58;
+const DESKTOP_TOP_ALIGNMENT_OFFSET = 30;
+const DESKTOP_TITLE_ALIGNMENT_OFFSET = 380;
+const DESKTOP_MODULE_HEIGHT = 500;
+const STICKY_HEADER_HEIGHT = 68;
+const AXIS_START_YEAR = 2021;
+const AXIS_TOTAL_MONTHS = 60;
+
 export function AboutTimelineSection({ milestones }: AboutTimelineSectionProps) {
   const activeYearRef = useRef<HTMLParagraphElement | null>(null);
-  const yearRefs = useRef<Array<HTMLParagraphElement | null>>([]);
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const stickyFrameRef = useRef<HTMLDivElement | null>(null);
+  const cardRefs = useRef<Array<HTMLElement | null>>([]);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [contentScroll, setContentScroll] = useState(0);
+  const foundedYear = milestones[0]?.year ?? "2021";
+  const isLatestActive = activeIndex === milestones.length - 1;
+  const timelineContentHeight = Math.max(
+    DESKTOP_MODULE_HEIGHT,
+    DESKTOP_TOP_ALIGNMENT_OFFSET +
+      (milestones.length - 1) * DESKTOP_TITLE_ALIGNMENT_OFFSET +
+      DESKTOP_MODULE_HEIGHT,
+  );
 
-  useEffect(() => {
-    if (!activeYearRef.current) {
+  const getAxisProgress = (item: Milestone, index: number) => {
+    if (index === 0) {
+      return 0;
+    }
+
+    const year = Number(item.year);
+    const monthOffset = (year - AXIS_START_YEAR) * 12 + item.axisMonth;
+
+    return Math.min(1, Math.max(0, monthOffset / AXIS_TOTAL_MONTHS));
+  };
+
+  const progress = milestones[activeIndex]
+    ? getAxisProgress(milestones[activeIndex], activeIndex)
+    : 0;
+  const axisLineHeight = isLatestActive
+    ? "calc(100% - 12px)"
+    : `calc((100% - 24px) * ${progress})`;
+
+  const scrollToMilestone = (index: number) => {
+    const section = sectionRef.current;
+    const target = cardRefs.current[index];
+
+    if (!section || !target) {
       return;
     }
 
-    const updateActiveIndex = () => {
-      const activeLine = activeYearRef.current?.getBoundingClientRect().top ?? 100;
+    const sectionTop = section.getBoundingClientRect().top + window.scrollY;
+    const availableFrameHeight = window.innerHeight - STICKY_HEADER_HEIGHT;
+    const maxScroll = Math.max(
+      0,
+      timelineContentHeight + 160 - availableFrameHeight,
+    );
+    const targetScroll = Math.min(maxScroll, Math.max(0, target.offsetTop - 80));
+
+    setActiveIndex(index);
+    window.scrollTo({
+      top: sectionTop + targetScroll,
+      behavior: "smooth",
+    });
+  };
+
+  const getCardOpacity = (index: number) => {
+    const distance = Math.abs(activeIndex - index);
+
+    if (distance === 0) {
+      return 1;
+    }
+    if (distance === 1) {
+      return 0.6;
+    }
+    if (distance === 2) {
+      return 0.4;
+    }
+
+    return Math.max(0.18, 0.3 - (distance - 3) * 0.1);
+  };
+
+  const getCardPosition = (index: number): CSSProperties => ({
+    opacity: getCardOpacity(index),
+    top: `${DESKTOP_TOP_ALIGNMENT_OFFSET + index * DESKTOP_TITLE_ALIGNMENT_OFFSET}px`,
+    left:
+      index % 2 === 1
+        ? `calc((100% + ${DESKTOP_COLUMN_GAP}px) / 2)`
+        : 0,
+  });
+
+  const getAxisPointStyle = (item: Milestone, index: number): CSSProperties => ({
+    top: `calc(12px + (100% - 24px) * ${getAxisProgress(item, index)})`,
+  });
+
+  const timelineContentStyle = {
+    "--timeline-content-height": `${timelineContentHeight}px`,
+  } as CSSProperties;
+
+  const timelineSectionStyle = {
+    height: `calc(${timelineContentHeight}px + ${STICKY_HEADER_HEIGHT + 160}px)`,
+  } as CSSProperties;
+
+  useEffect(() => {
+    const updateScrollState = () => {
+      const section = sectionRef.current;
+
+      if (!section || window.innerWidth < 768) {
+        setContentScroll(0);
+        setActiveIndex(0);
+        return;
+      }
+
+      const sectionTop = section.getBoundingClientRect().top + window.scrollY;
+      const availableFrameHeight = window.innerHeight - STICKY_HEADER_HEIGHT;
+      const maxScroll = Math.max(
+        0,
+        timelineContentHeight + 160 - availableFrameHeight,
+      );
+      const nextContentScroll = Math.min(
+        maxScroll,
+        Math.max(0, window.scrollY - sectionTop),
+      );
+      const activeLine = nextContentScroll + DESKTOP_TOP_ALIGNMENT_OFFSET;
       let closestIndex = 0;
       let closestDistance = Number.POSITIVE_INFINITY;
 
-      yearRefs.current.forEach((node, index) => {
-        if (!node) {
-          return;
-        }
-
-        const distance = Math.abs(node.getBoundingClientRect().top - activeLine);
+      milestones.forEach((_, index) => {
+        const distance = Math.abs(
+          DESKTOP_TOP_ALIGNMENT_OFFSET +
+            index * DESKTOP_TITLE_ALIGNMENT_OFFSET -
+            activeLine,
+        );
 
         if (distance < closestDistance) {
           closestDistance = distance;
@@ -42,88 +156,173 @@ export function AboutTimelineSection({ milestones }: AboutTimelineSectionProps) 
         }
       });
 
+      setContentScroll(nextContentScroll);
       setActiveIndex(closestIndex);
     };
 
-    updateActiveIndex();
-    window.addEventListener("scroll", updateActiveIndex, { passive: true });
-    window.addEventListener("resize", updateActiveIndex);
+    updateScrollState();
+    window.addEventListener("scroll", updateScrollState, { passive: true });
+    window.addEventListener("resize", updateScrollState);
 
     return () => {
-      window.removeEventListener("scroll", updateActiveIndex);
-      window.removeEventListener("resize", updateActiveIndex);
+      window.removeEventListener("scroll", updateScrollState);
+      window.removeEventListener("resize", updateScrollState);
     };
-  }, []);
+  }, [milestones, timelineContentHeight]);
+
+  const contentTransformStyle = {
+    transform: `translateY(-${contentScroll}px)`,
+  } as CSSProperties;
 
   return (
-    <section className="px-6 pb-[60px] pt-[120px] md:pb-[80px]">
-      <div className="mx-auto max-w-[1240px]">
-        <div className="grid gap-x-[70px] gap-y-[70px] md:grid-cols-[120px_1fr] lg:gap-x-[100px]">
-          <aside className="hidden md:block">
-            <div className="sticky top-[100px]">
-              <p
-                ref={activeYearRef}
-                className="text-[60px] font-semibold leading-none text-[#222943]/10"
-              >
-                {milestones[activeIndex]?.year ?? "2021"}
-              </p>
-              <div className="mt-[70px] flex h-[520px] flex-col items-center text-center">
-                <span className="text-[16px] font-bold text-[#222943]">2021</span>
-                <span className="mt-6 h-3 w-3 rounded-full border-[3px] border-[#222943] bg-white" />
-                <span className="mt-4 h-2 w-2 rounded-full bg-[#222943]" />
-                <span className="h-[118px] w-px border-l border-dashed border-[#c0c2c9]" />
-                <span className="h-2 w-2 rounded-full bg-[#222943]" />
-                <span className="h-[90px] w-px border-l border-dashed border-[#c0c2c9]" />
-                <span className="text-[12px] text-[#c0c2c9]">2023</span>
-                <span className="h-[110px] w-px border-l border-dashed border-[#c0c2c9]" />
-                <span className="h-2 w-2 rounded-full bg-[#222943]" />
-                <span className="mt-8 h-2 w-2 rounded-full bg-[#222943]" />
-                <span className="h-[58px] w-px border-l border-dashed border-[#c0c2c9]" />
-                <span className="h-3 w-3 rounded-full border-[3px] border-[#c0c2c9] bg-white" />
-                <span className="text-[16px] font-bold text-[#c0c2c9]">Today</span>
-              </div>
-            </div>
-          </aside>
+    <section
+      ref={sectionRef}
+      className="relative bg-white"
+      style={timelineSectionStyle}
+    >
+      <div
+        ref={stickyFrameRef}
+        className="sticky top-0 z-10 h-screen overflow-hidden px-6"
+      >
+        <div className="mx-auto h-full max-w-[1240px]">
+          <div className="h-px w-full bg-[#e6e7ea]" />
+          <div className="flex h-[66px] items-center gap-[10px]">
+            <span className="h-2 w-2 shrink-0 rounded-full bg-[#25cacc]" />
+            <p className="text-[24px] font-normal leading-[40px] text-[#222943]">
+              <span className="opacity-80">History of</span>{" "}
+              <span style={{ fontWeight: 900 }}>Zelostech</span>
+            </p>
+          </div>
+          <div className="h-px w-full bg-[#e6e7ea]" />
 
-          <div>
-            <div className="grid gap-x-[58px] gap-y-[70px] lg:grid-cols-2">
-              {milestones.map((item, index) => (
-                <article
-                  key={`${item.year}-${item.title}`}
-                  className={index % 2 === 1 ? "lg:translate-y-[380px]" : ""}
+          <div className="grid h-[calc(100%_-_68px)] gap-x-[70px] gap-y-[70px] md:grid-cols-[120px_minmax(0,1fr)] lg:gap-x-[100px]">
+            <aside className="hidden pt-[30px] md:block">
+              <div>
+                <p
+                  ref={activeYearRef}
+                  className="text-[60px] font-semibold leading-none text-[#222943]/10"
                 >
-                  <p
-                    ref={(node) => {
-                      yearRefs.current[index] = node;
-                    }}
-                    className={`text-[20px] font-bold leading-[40px] transition-colors ${
-                      activeIndex === index
-                        ? "text-[#25cacc]"
-                        : "text-[#222943] opacity-30"
-                    }`}
-                  >
-                    {item.year}
-                  </p>
-                  <div className="mt-[25px]">
-                    <div className="relative h-[260px] w-full overflow-hidden rounded-[8px] md:h-[300px]">
-                      <Image
-                        src={item.image}
-                        alt={item.title}
-                        fill
-                        unoptimized
-                        className="object-cover"
-                        sizes="(max-width: 1024px) calc(100vw - 48px), 450px"
+                  {milestones[activeIndex]?.year ?? "2021"}
+                </p>
+                <div className="mt-[30px] flex h-[520px] flex-col items-center text-center">
+                  <span className="text-[16px] font-bold text-[#222943]">
+                    {foundedYear}
+                  </span>
+                  <div className="relative mt-6 w-20 flex-1">
+                    <span className="absolute bottom-0 left-1/2 top-3 w-px -translate-x-1/2 border-l-2 border-dashed border-[#e5e7eb]" />
+                    <span
+                      className="absolute left-1/2 top-3 w-[2px] -translate-x-1/2 bg-[#222943] transition-[height]"
+                      style={{ height: axisLineHeight }}
+                    />
+
+                    {milestones.map((item, index) => {
+                      const isCurrent = index === activeIndex;
+                      const isFirst = index === 0;
+                      const isPassed = getAxisProgress(item, index) <= progress;
+
+                      return (
+                        <button
+                          key={`${item.year}-${item.title}-timeline`}
+                          type="button"
+                          aria-label={`Jump to ${item.year} ${item.title}`}
+                          onClick={() => scrollToMilestone(index)}
+                          className="group absolute left-1/2 z-10 flex h-6 w-20 -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center"
+                          style={getAxisPointStyle(item, index)}
+                        >
+                          {!isFirst && (
+                            <span
+                              className={`pointer-events-none absolute left-[51px] text-[12px] font-medium text-[#c0c2c9] transition-opacity ${
+                                isCurrent ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                              }`}
+                            >
+                              {item.year}
+                            </span>
+                          )}
+                          <span
+                            className={`rounded-full transition-colors ${
+                              isFirst
+                                ? "relative z-20 h-5 w-5 border-[4px] border-[#222943] bg-white shadow-[0_0_0_4px_#fff]"
+                                : `h-3 w-3 border-2 border-white ${
+                                    isPassed
+                                      ? "bg-[#222943]"
+                                      : "bg-[#c0c2c9] group-hover:bg-[#222943]"
+                                  }`
+                            }`}
+                          />
+                        </button>
+                      );
+                    })}
+                    <button
+                      type="button"
+                      onClick={() => scrollToMilestone(milestones.length - 1)}
+                      className="absolute left-1/2 top-full z-10 flex h-6 w-20 -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center"
+                      aria-label="Jump to today"
+                    >
+                      <span
+                        className={`h-5 w-5 rounded-full border-[4px] transition-colors ${
+                          isLatestActive
+                            ? "relative z-20 border-[#222943] bg-white shadow-[0_0_0_4px_#fff]"
+                            : "border-[#e6e7ea] bg-white"
+                        }`}
                       />
-                    </div>
-                    <h3 className="mt-[15px] text-[20px] font-semibold leading-[1.35] text-[#222943]">
-                      {item.title}
-                    </h3>
-                    <p className="mt-[10px] text-[16px] font-medium leading-[22px] text-[#8e919f]">
-                      {item.description}
-                    </p>
+                      <span
+                        className={`absolute top-[30px] text-[16px] font-bold transition-colors ${
+                          isLatestActive ? "text-[#222943]" : "text-[#c0c2c9]"
+                        }`}
+                      >
+                        Today
+                      </span>
+                    </button>
                   </div>
-                </article>
-              ))}
+                </div>
+              </div>
+            </aside>
+
+            <div className="h-full overflow-hidden pr-1 md:pr-4">
+              <div
+                className="grid gap-y-[70px] pb-[80px] pt-[80px] transition-transform duration-75 lg:relative lg:block lg:min-h-[var(--timeline-content-height)]"
+                style={{ ...timelineContentStyle, ...contentTransformStyle }}
+              >
+                {milestones.map((item, index) => {
+                  const isCurrent = activeIndex === index;
+
+                  return (
+                    <article
+                      ref={(node) => {
+                        cardRefs.current[index] = node;
+                      }}
+                      key={`${item.year}-${item.title}`}
+                      className="transition-opacity duration-300 lg:absolute lg:w-[calc((100%_-_58px)/2)]"
+                      style={getCardPosition(index)}
+                    >
+                      <p
+                        className={`text-[20px] font-bold leading-[40px] transition-colors ${
+                          isCurrent ? "text-[#25cacc]" : "text-[#222943]"
+                        }`}
+                      >
+                        {item.year}
+                      </p>
+                      <div className="mt-[25px]">
+                        <div className="relative h-[260px] w-full overflow-hidden rounded-[8px] md:h-[300px]">
+                          <Image
+                            src={item.image}
+                            alt={item.title}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 1024px) calc(100vw - 48px), 450px"
+                          />
+                        </div>
+                        <h3 className="mt-[15px] text-[20px] font-semibold leading-[1.35] text-[#222943]">
+                          {item.title}
+                        </h3>
+                        <p className="mt-[10px] text-[16px] font-medium leading-[22px] text-[#8e919f]">
+                          {item.description}
+                        </p>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
