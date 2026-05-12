@@ -36,7 +36,7 @@ function RevealCharacter({
   const color = useTransform(
     progress,
     [start, end],
-    ["rgba(0, 89, 255, 0.2)", "#222943"],
+    ["#C0C2C9", "#222943"],
   );
 
   return (
