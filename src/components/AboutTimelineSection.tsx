@@ -18,7 +18,7 @@ type AboutTimelineSectionProps = {
 };
 
 const DESKTOP_COLUMN_GAP = 58;
-const DESKTOP_TOP_ALIGNMENT_OFFSET = 60;
+const DESKTOP_TOP_ALIGNMENT_OFFSET = 100;
 const DESKTOP_TITLE_ALIGNMENT_OFFSET = 380;
 const DESKTOP_MODULE_HEIGHT = 500;
 const AXIS_START_YEAR = 2021;
@@ -185,7 +185,7 @@ export function AboutTimelineSection({ milestones }: AboutTimelineSectionProps) 
       >
         <div className="mx-auto h-full max-w-[1240px]">
           <div className="grid h-full gap-x-[70px] gap-y-[70px] md:grid-cols-[120px_minmax(0,1fr)] lg:gap-x-[100px]">
-            <aside className="hidden pt-[60px] md:block">
+            <aside className="hidden pt-[100px] md:block">
               <div>
                 <p
                   ref={activeYearRef}
@@ -193,8 +193,8 @@ export function AboutTimelineSection({ milestones }: AboutTimelineSectionProps) 
                 >
                   {milestones[activeIndex]?.year ?? "2021"}
                 </p>
-                <div className="mt-[30px] flex h-[520px] flex-col items-center text-center">
-                  <span className="text-[16px] font-bold text-[#222943]">
+                <div className="-ml-[16px] mt-[30px] flex h-[520px] flex-col items-start text-center">
+                  <span className="w-20 text-center text-[16px] font-bold text-[#222943]">
                     {foundedYear}
                   </span>
                   <div className="relative mt-6 w-20 flex-1">
